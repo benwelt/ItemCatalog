@@ -1,0 +1,12 @@
+{% extends "framework.html" %}
+{% block content %}
+  <div class="container">
+    {% for b in bikes %}
+      <img class="bike-pic" src="{{b.imageUrl}}" alt="{{b.name}}" title="{{b.name}}">
+      <h3>{{b.name}}</a></h3>
+      <h4>{{b.brand}}</h4>
+      <h4><a href="{{url_for('showCategoryBikes', category_name=b.category.name)}}">{{b.category.name}}</a></h4>
+      <p>{{b.description}}</p>
+    {% endfor %}
+  </div>
+{% endblock %}
