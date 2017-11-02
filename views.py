@@ -177,8 +177,8 @@ def showAllBikes():
 
 
 # Items within a selected category
-@app.route('/<string:category_name>/')
-@app.route('/<string:category_name>/bikes')
+@app.route('/category/<string:category_name>/')
+@app.route('/category/<string:category_name>/bikes')
 def showCategoryBikes(category_name):
     category = session.query(Category).filter_by(name=category_name).first()
     bikes = session.query(Bike).filter_by(category=category).all()
@@ -187,16 +187,16 @@ def showCategoryBikes(category_name):
 
 
 # Items within a selected brand
-@app.route('/<string:brand_name>/')
-@app.route('/<string:brand_name>/bikes')
+@app.route('/brand/<string:brand_name>/')
+@app.route('/brand/<string:brand_name>/bikes')
 def showBrandBikes(brand_name):
     bikes = session.query(Bike).filter_by(brand=brand_name).all()
-    return render_template('brandbikes.html', bikes=bikes)
+    return render_template('brandbikes.html', bikes=bikes, brand=brand_name)
 
 
 # Show details for specific bikes
-@app.route('/<string:bike_name>/')
-@app.route('/<string:bike_name>/details')
+@app.route('/bike/<string:bike_name>/')
+@app.route('/bike/<string:bike_name>/details')
 def showBikeDetails(bike_name):
     bike = session.query(Bike).filter_by(name=bike_name).one()
     return render_template('bikedetails.html', bike=bike)

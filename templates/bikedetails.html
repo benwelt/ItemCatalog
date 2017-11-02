@@ -1,12 +1,12 @@
 {% extends "framework.html" %}
 {% block content %}
   <div class="container">
-    {% for b in bikes %}
-      <img class="bike-pic" src="{{b.imageUrl}}" alt="{{b.name}}" title="{{b.name}}">
-      <h3>{{b.name}}</a></h3>
-      <h4>{{b.brand}}</h4>
-      <h4><a href="{{url_for('showCategoryBikes', category_name=b.category.name)}}">{{b.category.name}}</a></h4>
-      <p>{{b.description}}</p>
-    {% endfor %}
+    <img class="img-fluid" src="{{bike.imageUrl}}" alt="{{bike.name}}">
+    <div class="jumbotron">
+      <h1 class="display-3">{{bike.name}}</h1>
+      <h4 class="card-title"><a href="{{url_for('showBrandBikes', brand_name=bike.brand)}}">{{bike.brand}}</a></h4>
+      <h6><a href="{{url_for('showCategoryBikes', category_name=bike.category.name)}}">{{bike.category.name}}</a></h6>
+      <p class="lead">{{bike.description}}</p>
+    </div>
   </div>
 {% endblock %}

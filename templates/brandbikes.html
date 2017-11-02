@@ -1,11 +1,23 @@
 {% extends "framework.html" %}
 {% block content %}
-  <div class="container">
+<div class="jumbotron">
+  <h1 class="display-3">{{brand}} Bikes</h1>
+</div>
+<div class="container">
+  <div class="row">
     {% for b in bikes %}
-      <img class="bike-pic" src="{{b.imageUrl}}" alt="{{b.name}}" title="{{b.name}}">
-      <h3>{{b.name}}</a></h3>
-      <h4>{{b.brand}}</h4>
-      <h4><a href="{{url_for('showCategoryBikes', category_name=b.category.name)}}">{{b.category.name}}</a></h4>
+    <div class="col-md-3">
+      <div class="card bg-light">
+        <h4 class="card-header text-center">{{b.name}}</h4>
+        <img class="card-img-top" src="{{b.imageUrl}}" alt="{{b.name}}" title="{{b.name}}" style="height: 154px;">
+        <div class="card-body">
+          <h4 class="card-title"><a href="{{url_for('showBrandBikes', brand_name=b.brand)}}">{{b.brand}}</a></h4>
+          <h6 class="card-subtitle"><a href="{{url_for('showCategoryBikes', category_name=b.category.name)}}">{{b.category.name}}</a></h6>
+          <a class="btn btn-dark" href="{{url_for('showBikeDetails', bike_name=b.name)}}" style="margin-top: 10px;">Details</a>
+        </div>
+      </div>
+    </div>
     {% endfor %}
   </div>
+</div>
 {% endblock %}

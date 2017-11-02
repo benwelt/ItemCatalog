@@ -1,5 +1,15 @@
-.bike-pic {
-  width: 100px;
-  height: 100px;
-  overflow: hidden;
+html, body {
+  background-color: #6d6d6d
+}
+
+nav {
+  margin-bottom: 50px;
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: #6d6d6d;
 }
