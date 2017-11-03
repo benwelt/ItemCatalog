@@ -2,6 +2,10 @@ html, body {
   background-color: #6d6d6d
 }
 
+.hidden {
+  display: none !important;
+}
+
 nav {
   margin-bottom: 50px;
 }

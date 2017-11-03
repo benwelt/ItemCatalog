@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel=stylesheet type=text/css href="{{url_for('static', filename='styles.css')}}">
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
     <title>Item Catalog</title>
   </head>
@@ -19,17 +20,75 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarMenu">
-        <ul class="navbar-nav">
+        <ul class="navbar-nav mr-auto">
           <li class="nav-item"><a class="nav-link" href="{{url_for('showCategoryBikes', category_name='Downhill')}}">Downhill</a></li>
           <li class="nav-item"><a class="nav-link" href="{{url_for('showCategoryBikes', category_name='Enduro')}}">Enduro</a></li>
           <li class="nav-item"><a class="nav-link" href="{{url_for('showCategoryBikes', category_name='Trail')}}">Trail</a></li>
           <li class="nav-item"><a class="nav-link" href="{{url_for('showCategoryBikes', category_name='XC')}}">XC</a></li>
         </ul>
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <div id="signinButton" class="pt-2">
+              <span class="g-signin"
+                data-scope="openid email"
+                data-clientid="713844007956-6em8bfk83oopbjigthj7mvmb5jbdc63v.apps.googleusercontent.com"
+                data-redirecturi="postmessage"
+                data-accesstype="offline"
+                data-cookiepolicy="single_host_origin"
+                data-callback="signInCallback"
+                data-approvalprompt="force">
+              </span>
+            </div>
+          </li>
+          <li class="nav-item dropdown hidden" id="userInfo">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Welcome</a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <img id="userImg" src="" class="dropdown-item rounded-circle" height="50" width="50">
+              <p id="userName" class="dropdown-item"></p>
+              <p id="userEmail" class="dropdown-item"></p>
+              <a class="dropdown-item" href="{{url_for('glogout')}}">Logout</a>
+            </div>
+          </li>
+        </ul>
       </div>
     </nav>
+    <div class="state">
+      <p>{{state}}</p>
+    </div>
 
     <!--- Dynamic Pages --->
     {% block content %}
     {% endblock %}
+
+    <script src="{{ url_for('static',filename = 'app.js') }}"></script>
+    <script type="text/javascript">
+      function signInCallback(authResult) {
+        if (authResult['code']) {
+          // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+          $.ajax({
+            type: 'POST',
+            url: '/glogin?state={{state}}',
+            processData: false,
+            data: authResult['code'],
+            contentType: 'application/octet-stream; charset=utf-8',
+            success: function(result) {
+              // Handle or verify the server response if necessary.
+              if (result) {
+                $('#signinButton').hide();
+                $('#userInfo').removeClass('hidden');
+                $('#userImg').attr('src', result['img']);
+                $('#userName').html(result['name']);
+                $('#userEmail').html(result['email']);
+
+              } else if (authResult['error']) {
+                console.log('There was an error: ' + authResult['error']);
+              } else {
+                console.log('There was an error')
+              }
+            }
+          });
+        }
+      };
+    </script>
   </body>
 </html>

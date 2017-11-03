@@ -22,21 +22,19 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 app = Flask(__name__)
 
+CLIENT_ID = json.loads(open(
+        'client_secrets.json', 'r').read())['web']['client_id']
 
-@app.route('/login')
-def showLogin():
-    state = ''.join(random.choice(
-            string.ascii_uppercase + string.digits) for x in xrange(32))
+
+def newState():
+    state = ''.join(random.choice(string.ascii_uppercase +
+                    string.digits) for x in xrange(32))
     login_session['state'] = state
-    client_id = json.loads(open('git_client_secrets.json', 'r').read())[
-        'web']['client_id']
-    return render_template('login.html', STATE=state, CLIENT_ID=client_id)
+    return state
 
 
 @app.route('/glogin', methods=['POST'])
 def glogin():
-    CLIENT_ID = json.loads(
-            open('g_client_secrets.json', 'r').read())['web']['client_id']
 
     # Validate state token
     if request.args.get('state') != login_session['state']:
@@ -45,12 +43,14 @@ def glogin():
         return response
     # Obtain authorization code
     code = request.data
+    print "-----Auth code recieved.-----"
 
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('g_client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
+        print "-----Auth Upgraded-----"
     except FlowExchangeError:
         response = make_response(
             json.dumps('Failed to upgrade the authorization code.'), 401)
@@ -115,16 +115,7 @@ def glogin():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
-    output = ''
-    output += '<h1>Welcome, '
-    output += login_session['username']
-    output += '!</h1>'
-    output += '<img src="'
-    output += login_session['picture']
-    output += ' " style = "width: 300px; height: 300px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
-    flash("you are now logged in as %s" % login_session['username'])
-    print "done!"
-    return output
+    return jsonify(name=login_session['username'])
 
 
 @app.route('/glogout')
@@ -161,19 +152,21 @@ def logout():
         if login_session['provider'] == 'facebook':
             fblogout()
         flash("You have been logged out.")
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showAllBikes'))
     else:
         flash("You were not logged in")
-        return redirect(url_for('showCategories'))
+        return redirect(url_for('showAllBikes'))
 
 
 # Main page
 @app.route('/')
 @app.route('/main')
 def showAllBikes():
+    state = newState()
     categories = session.query(Category).all()
     bikes = session.query(Bike).all()
-    return render_template('main.html', categories=categories, bikes=bikes)
+    return render_template('main.html', categories=categories, bikes=bikes,
+                           login_session=login_session, state=state)
 
 
 # Items within a selected category
