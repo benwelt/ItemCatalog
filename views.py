@@ -223,16 +223,23 @@ def addNewBike():
 
 
 # Edit an existing item
-@app.route('/<string:category_name>/<string:bike_name>/edit',
+@app.route('/<string:brand_name>/<string:bike_name>/edit',
            methods=['GET', 'POST'])
-def editItem(category_name, bike_name):
+def editBike(brand_name, bike_name):
     categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
     if request.method == 'POST':
+        bike.name = request.form['name']
+        bike.brand = request.form['brand']
+        bike.category_id = request.form['category']
+        bike.imageUrl = request.form['bikeImageUrl']
+        bike.description = request.form['description']
+        session.add(bike)
+        session.commit()
         return redirect(url_for('showAllBikes'))
     else:
-        return render_template('edit.html', category=category_name,
-                               bike=bike_name, categories=categories)
+        return render_template('editbike.html', brand=brand_name,
+                               bike=bike, categories=categories)
 
 
 # Delete an existing bike
