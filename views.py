@@ -43,14 +43,12 @@ def glogin():
         return response
     # Obtain authorization code
     code = request.data
-    print "-----Auth code recieved.-----"
 
     try:
         # Upgrade the authorization code into a credentials object
         oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
-        print "-----Auth Upgraded-----"
     except FlowExchangeError:
         response = make_response(
             json.dumps('Failed to upgrade the authorization code.'), 401)
@@ -173,38 +171,55 @@ def showAllBikes():
 @app.route('/category/<string:category_name>/')
 @app.route('/category/<string:category_name>/bikes')
 def showCategoryBikes(category_name):
+    categories = session.query(Category).all()
     category = session.query(Category).filter_by(name=category_name).first()
     bikes = session.query(Bike).filter_by(category=category).all()
     return render_template('categorybikes.html', bikes=bikes,
-                           category=category)
+                           category=category, categories=categories)
 
 
 # Items within a selected brand
 @app.route('/brand/<string:brand_name>/')
 @app.route('/brand/<string:brand_name>/bikes')
 def showBrandBikes(brand_name):
+    categories = session.query(Category).all()
     bikes = session.query(Bike).filter_by(brand=brand_name).all()
-    return render_template('brandbikes.html', bikes=bikes, brand=brand_name)
+    return render_template('brandbikes.html', bikes=bikes, brand=brand_name, categories=categories)
 
 
 # Show details for specific bikes
 @app.route('/bike/<string:bike_name>/')
 @app.route('/bike/<string:bike_name>/details')
 def showBikeDetails(bike_name):
+    categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
-    return render_template('bikedetails.html', bike=bike)
+    return render_template('bikedetails.html', bike=bike, categories=categories)
+
+
+# Add a new category
+@app.route('/category/new', methods=['GET', 'POST'])
+def addNewCategory():
+    categories = session.query(Category).all()
+    if request.method == 'POST':
+        newCategory = Category(name=request.form['name'])
+        session.add(newCategory)
+        session.commit()
+        return redirect(url_for('showAllBikes'))
+    else:
+        return render_template('newcategory.html', categories=categories)
 
 
 # Add a new item
-@app.route('/new', methods=['GET', 'POST'])
-def addNew():
+@app.route('/bike/new', methods=['GET', 'POST'])
+def addNewBike():
+    categories = session.query(Category).all()
     if request.method == 'POST':
-        newBike = Bike()
+        newBike = Bike(name=request.form['name'], brand=request.form['brand'], category_id=request.form['category'], imageUrl=request.form['bikeImageUrl'], description=request.form['description'])
         session.add(newBike)
         session.commit()
         return redirect(url_for('showAllBikes'))
     else:
-        return render_template('new.html')
+        return render_template('newbike.html', categories=categories)
 
 
 # Edit an existing item

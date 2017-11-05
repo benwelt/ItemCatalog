@@ -4,6 +4,7 @@
     <meta charset="utf-8"><title>Item Catalog</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-signin-client_id" content="713844007956-6em8bfk83oopbjigthj7mvmb5jbdc63v.apps.googleusercontent.com">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel=stylesheet type=text/css href="{{url_for('static', filename='styles.css')}}">
@@ -21,10 +22,14 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarMenu">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item"><a class="nav-link" href="{{url_for('showCategoryBikes', category_name='Downhill')}}">Downhill</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{url_for('showCategoryBikes', category_name='Enduro')}}">Enduro</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{url_for('showCategoryBikes', category_name='Trail')}}">Trail</a></li>
-          <li class="nav-item"><a class="nav-link" href="{{url_for('showCategoryBikes', category_name='XC')}}">XC</a></li>
+          <li class="nav-item dropdown"><a class="nav-link dropdown-toggle" href="#" id="categoryDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Category</a>
+            <div class="dropdown-menu" aria-labelledby="categoryDropdown">
+              {% for c in categories %}
+                <a class="dropdown-item" href="{{url_for('showCategoryBikes', category_name=c.name)}}">{{c.name}}</a>
+              {% endfor %}
+              <a class="dropdown-item text-info" href="{{url_for('addNewCategory')}}">Add New</a>
+            </div>
+          </li>
         </ul>
         <ul class="navbar-nav">
           <li class="nav-item">
@@ -76,9 +81,12 @@
               if (result) {
                 $('#signinButton').hide();
                 $('#userInfo').removeClass('hidden');
-                $('#userImg').attr('src', result['img']);
+                $('#userImg').attr('src', result['picture']);
                 $('#userName').html(result['name']);
                 $('#userEmail').html(result['email']);
+                console.log(result['picture'])
+                console.log(result['name'])
+                console.log(result['email'])
 
               } else if (authResult['error']) {
                 console.log('There was an error: ' + authResult['error']);

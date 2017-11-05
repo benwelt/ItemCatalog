@@ -1,0 +1,44 @@
+{% extends "framework.html" %}
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6.offset-md-3">
+        <form class="newItemForm" action="#" method="post">
+          <div class="form-group">
+            <label for="bikeNameInput">Bike Name</label>
+            <input type="text" class="form-control" name="name" id="bikeNameInput" placeholder="Enter bike name">
+          </div>
+          <div class="form-group">
+            <label for="bikeBrandInput">Brand Name</label>
+            <input type="text" name="brand" class="form-control" id="bikeBrandInput" placeholder="Enter brand name">
+          </div>
+          <div class="form-group">
+            <label for="categorySelect">Category</label>
+            <div class="input-group">
+              <select class="form-control" name="category" id="categorySelect">
+                <option selected>Select a Category</option>
+                {% for c in categories %}
+                <option value="{{c.id}}">{{c.name}}</option>
+                {% endfor %}
+              </select>
+              <span class="input-group-btn">
+                <a href="{{url_for('addNewCategory')}}" class="btn btn-secondary" role="button" title="Add new category"><i class="fa fa-plus"></i></a>
+              </span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="bikeImageUrl">Image URL</label>
+            <input type="text" class="form-control" name="bikeImageUrl" placeholder="Enter an image URL">
+          </div>
+          <div class="form-control">
+            <label for="bikeDescInput">Description</label>
+            <textarea class="form-control" name="description" id="bikeDescInput" rows="8" cols="80"></textarea>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="btn btn-secondary">Submit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+{% endblock %}

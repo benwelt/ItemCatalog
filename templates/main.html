@@ -3,7 +3,7 @@
 <div class="container">
   <div class="row">
     {% for b in bikes %}
-    <div class="col-md-3">
+    <div class="col-md-3 mt-3">
       <div class="card bg-light">
         <h4 class="card-header text-center">{{b.name}}</h4>
         <img class="card-img-top" src="{{b.imageUrl}}" alt="{{b.name}}" title="{{b.name}}" style="height: 154px;">
@@ -15,6 +15,9 @@
       </div>
     </div>
     {% endfor %}
+  </div>
+  <div class="float-right">
+    <a class="btn btn-danger btn-circle" href="{{url_for('addNewBike')}}"><i class="fa fa-plus fa-3x" aria-hidden="true"></i></a>
   </div>
 </div>
 {% endblock %}
