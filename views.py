@@ -226,25 +226,41 @@ def addNewBike():
 @app.route('/<string:category_name>/<string:bike_name>/edit',
            methods=['GET', 'POST'])
 def editItem(category_name, bike_name):
+    categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
     if request.method == 'POST':
         return redirect(url_for('showAllBikes'))
     else:
         return render_template('edit.html', category=category_name,
-                               bike=bike_name)
+                               bike=bike_name, categories=categories)
 
 
-# Delete an existing item
-@app.route('/<string:category_name>/<string:bike_name>/delete',
+# Delete an existing bike
+@app.route('/<string:brand_name>/<string:bike_name>/delete',
            methods=['GET', 'POST'])
-def deleteItem(category_name, bike_name):
+def deleteBike(brand_name, bike_name):
+    categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
     if request.method == 'POST':
         session.delete(bike)
         session.commit()
         return redirect(url_for('showAllBikes'))
     else:
-        return render_template('delete.html')
+        return render_template('deletebike.html', bike=bike, brand=brand_name, categories=categories)
+
+
+# Delete an existing bike
+@app.route('/<string:category_name>/delete',
+           methods=['GET', 'POST'])
+def deletecategory(category_name):
+    categories = session.query(Category).all()
+    category = session.query(Category).filter_by(name=category_name).one()
+    if request.method == 'POST':
+        session.delete(category)
+        session.commit()
+        return redirect(url_for('showAllBikes'))
+    else:
+        return render_template('deletecategory.html', category=category, categories=categories)
 
 
 # Custom 404 page

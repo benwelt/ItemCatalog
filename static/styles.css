@@ -18,12 +18,16 @@ a:hover {
   color: #6d6d6d;
 }
 
-.btn-circle {
-  width: 50px;
-  height: 50px;
-  text-align: center;
-  padding: 6px 0;
-  font-size: 12px;
-  line-height: 1.428571429;
-  border-radius: 50px;
+.addNewButton {
+  color: #D6354A;
+}
+
+.addNewButton:hover {
+  color: #B71C1C;
+}
+
+.fixed-bottom-right {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
 }
