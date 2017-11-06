@@ -132,6 +132,7 @@ def glogout():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
+        del login_session['provider']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -175,7 +176,7 @@ def showCategoryBikes(category_name):
     category = session.query(Category).filter_by(name=category_name).first()
     bikes = session.query(Bike).filter_by(category=category).all()
     return render_template('categorybikes.html', bikes=bikes,
-                           category=category, categories=categories)
+                           category=category, categories=categories, login_session=login_session)
 
 
 # Items within a selected brand
@@ -184,7 +185,7 @@ def showCategoryBikes(category_name):
 def showBrandBikes(brand_name):
     categories = session.query(Category).all()
     bikes = session.query(Bike).filter_by(brand=brand_name).all()
-    return render_template('brandbikes.html', bikes=bikes, brand=brand_name, categories=categories)
+    return render_template('brandbikes.html', bikes=bikes, brand=brand_name, categories=categories, login_session=login_session)
 
 
 # Show details for specific bikes
@@ -193,7 +194,7 @@ def showBrandBikes(brand_name):
 def showBikeDetails(bike_name):
     categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
-    return render_template('bikedetails.html', bike=bike, categories=categories)
+    return render_template('bikedetails.html', bike=bike, categories=categories, login_session=login_session)
 
 
 # Add a new category
@@ -206,7 +207,7 @@ def addNewCategory():
         session.commit()
         return redirect(url_for('showAllBikes'))
     else:
-        return render_template('newcategory.html', categories=categories)
+        return render_template('newcategory.html', categories=categories, login_session=login_session)
 
 
 # Add a new item
@@ -214,12 +215,16 @@ def addNewCategory():
 def addNewBike():
     categories = session.query(Category).all()
     if request.method == 'POST':
-        newBike = Bike(name=request.form['name'], brand=request.form['brand'], category_id=request.form['category'], imageUrl=request.form['bikeImageUrl'], description=request.form['description'])
+        newBike = Bike(name=request.form['name'],
+                       brand=request.form['brand'],
+                       category_id=request.form['category'],
+                       imageUrl=request.form['bikeImageUrl'],
+                       description=request.form['description'])
         session.add(newBike)
         session.commit()
         return redirect(url_for('showAllBikes'))
     else:
-        return render_template('newbike.html', categories=categories)
+        return render_template('newbike.html', categories=categories, login_session=login_session)
 
 
 # Edit an existing item
@@ -239,7 +244,7 @@ def editBike(brand_name, bike_name):
         return redirect(url_for('showAllBikes'))
     else:
         return render_template('editbike.html', brand=brand_name,
-                               bike=bike, categories=categories)
+                               bike=bike, categories=categories, login_session=login_session)
 
 
 # Delete an existing bike
@@ -253,21 +258,7 @@ def deleteBike(brand_name, bike_name):
         session.commit()
         return redirect(url_for('showAllBikes'))
     else:
-        return render_template('deletebike.html', bike=bike, brand=brand_name, categories=categories)
-
-
-# Delete an existing bike
-@app.route('/<string:category_name>/delete',
-           methods=['GET', 'POST'])
-def deletecategory(category_name):
-    categories = session.query(Category).all()
-    category = session.query(Category).filter_by(name=category_name).one()
-    if request.method == 'POST':
-        session.delete(category)
-        session.commit()
-        return redirect(url_for('showAllBikes'))
-    else:
-        return render_template('deletecategory.html', category=category, categories=categories)
+        return render_template('deletebike.html', bike=bike, brand=brand_name, categories=categories, login_session=login_session)
 
 
 # Custom 404 page

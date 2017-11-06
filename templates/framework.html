@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="google-signin-client_id" content="713844007956-6em8bfk83oopbjigthj7mvmb5jbdc63v.apps.googleusercontent.com">
+    <link rel="icon" href="{{url_for('static', filename='favicon.ico')}}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css" integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
     <link rel=stylesheet type=text/css href="{{url_for('static', filename='styles.css')}}">
@@ -12,7 +13,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js" integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh" crossorigin="anonymous"></script>
     <script src="https://apis.google.com/js/platform.js" async defer></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js" integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ" crossorigin="anonymous"></script>
-    <title>Item Catalog</title>
+    <title>Bike Catalog</title>
   </head>
   <body>
     <nav class="navbar navbar-dark bg-dark navbar-expand-lg">
@@ -45,27 +46,27 @@
               </span>
             </div>
           </li>
-          <li class="nav-item dropdown hidden" id="userInfo">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Welcome</a>
+          <li class="nav-item dropdown mr-5" id="userInfo">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Welcome, {{login_session['username']}}</a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <img id="userImg" src="" class="dropdown-item rounded-circle" height="50" width="50">
-              <p id="userName" class="dropdown-item"></p>
-              <p id="userEmail" class="dropdown-item"></p>
+              <img id="userImg" src="{{login_session['picture']}}" class="dropdown-item rounded-circle">
+              <p id="userName" class="dropdown-item">{{login_session['username']}}</p>
+              <p id="userEmail" class="dropdown-item">{{login_session['email']}}</p>
               <a class="dropdown-item" href="{{url_for('glogout')}}">Logout</a>
             </div>
           </li>
         </ul>
       </div>
     </nav>
-    <div class="state">
-      <p>{{state}}</p>
-    </div>
 
     <!--- Dynamic Pages --->
     {% block content %}
     {% endblock %}
 
     <script src="{{ url_for('static',filename = 'app.js') }}"></script>
+    <script type="text/javascript">
+      var loggedIn = "{{login_session['provider']}}";
+    </script>
     <script type="text/javascript">
       function signInCallback(authResult) {
         if (authResult['code']) {
@@ -79,15 +80,8 @@
             success: function(result) {
               // Handle or verify the server response if necessary.
               if (result) {
-                $('#signinButton').hide();
-                $('#userInfo').removeClass('hidden');
-                $('#userImg').attr('src', result['picture']);
-                $('#userName').html(result['name']);
-                $('#userEmail').html(result['email']);
-                console.log(result['picture'])
-                console.log(result['name'])
-                console.log(result['email'])
-
+                loggedIn = 'google';
+                location.reload();
               } else if (authResult['error']) {
                 console.log('There was an error: ' + authResult['error']);
               } else {
