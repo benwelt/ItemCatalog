@@ -85,8 +85,8 @@ def glogin():
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and gplus_id == stored_gplus_id:
-        response = make_response(json.dumps('Current user is already connected.'),
-                                 200)
+        response = make_response(json.dumps(
+            'Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -119,10 +119,12 @@ def glogin():
 def logout():
     access_token = login_session.get('access_token')
     if access_token is None:
-        response = make_response(json.dumps('Current user not connected.'), 401)
+        response = make_response(json.dumps(
+            'Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
-    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % login_session['access_token']
+    url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' \
+        % login_session['access_token']
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     if result['status'] == '200':
@@ -163,7 +165,9 @@ def showCategoryBikes(category_name):
     category = session.query(Category).filter_by(name=category_name).first()
     bikes = session.query(Bike).filter_by(category=category).all()
     return render_template('categorybikes.html', bikes=bikes,
-                           category=category, categories=categories, login_session=login_session)
+                           category=category,
+                           categories=categories,
+                           login_session=login_session)
 
 
 # Items within a selected brand
@@ -172,7 +176,11 @@ def showCategoryBikes(category_name):
 def showBrandBikes(brand_name):
     categories = session.query(Category).all()
     bikes = session.query(Bike).filter_by(brand=brand_name).all()
-    return render_template('brandbikes.html', bikes=bikes, brand=brand_name, categories=categories, login_session=login_session)
+    return render_template('brandbikes.html',
+                           bikes=bikes,
+                           brand=brand_name,
+                           categories=categories,
+                           login_session=login_session)
 
 
 # Show details for specific bikes
@@ -181,7 +189,10 @@ def showBrandBikes(brand_name):
 def showBikeDetails(bike_name):
     categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
-    return render_template('bikedetails.html', bike=bike, categories=categories, login_session=login_session)
+    return render_template('bikedetails.html',
+                           bike=bike,
+                           categories=categories,
+                           login_session=login_session)
 
 
 # Add a new category
@@ -196,7 +207,9 @@ def addNewCategory():
             flash('New category successfuly added')
             return redirect(url_for('showAllBikes'))
         else:
-            return render_template('newcategory.html', categories=categories, login_session=login_session)
+            return render_template('newcategory.html',
+                                   categories=categories,
+                                   login_session=login_session)
     else:
         flash('Please login to add a new category')
         return redirect(url_for('showAllBikes'))
@@ -206,6 +219,7 @@ def addNewCategory():
 @app.route('/bike/new', methods=['GET', 'POST'])
 def addNewBike():
     categories = session.query(Category).all()
+    # Check for logged in user
     if 'provider' in login_session and login_session['provider'] != 'null':
         if request.method == 'POST':
             newBike = Bike(name=request.form['name'],
@@ -218,7 +232,9 @@ def addNewBike():
             flash('New bike successfully added')
             return redirect(url_for('showAllBikes'))
         else:
-            return render_template('newbike.html', categories=categories, login_session=login_session)
+            return render_template('newbike.html',
+                                   categories=categories,
+                                   login_session=login_session)
     else:
         flash('Please login to add a new bike')
         return redirect(url_for('showAllBikes'))
@@ -230,6 +246,7 @@ def addNewBike():
 def editBike(brand_name, bike_name):
     categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
+    # Check for logged in user
     if 'provider' in login_session and login_session['provider'] != 'null':
         if request.method == 'POST':
             bike.name = request.form['name']
@@ -256,6 +273,7 @@ def editBike(brand_name, bike_name):
 def deleteBike(brand_name, bike_name):
     categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
+    # Check for logged in user
     if 'provider' in login_session and login_session['provider'] != 'null':
         if request.method == 'POST':
             session.delete(bike)
@@ -271,6 +289,7 @@ def deleteBike(brand_name, bike_name):
     else:
         flash('Please login to delete a bike')
         return redirect(url_for('showAllBikes'))
+
 
 # Custom 404 page
 @app.errorhandler(404)
@@ -304,22 +323,16 @@ def getUserId(email):
 
 
 # Endpoints
-@app.route('/categories/JSON')
+@app.route('/category/json')
 def categoryJSON():
     categories = session.query(Category).all()
     return jsonify(categories=[c.serialize for c in categories])
 
 
-@app.route('/items/JSON')
-def itemJSON():
-    items = session.query(Bike).all()
-    return jsonify(bikes=[i.serialize for b in bikes])
-
-
-@app.route('/users/JSON')
-def userJSON():
-    users = session.query(User).all()
-    return jsonify(users=[u.serialize for u in users])
+@app.route('/bike/json')
+def bikeJSON():
+    bikes = session.query(Bike).all()
+    return jsonify(bikes=[b.serialize for b in bikes])
 
 
 if __name__ == '__main__':
