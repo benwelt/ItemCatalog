@@ -1,20 +1,26 @@
 $(document).ready(function() {
 
-  function hideLoginButton() {
+  function showLoggedInButtons() {
     $('#signinButton').hide();
     $('#userInfo').show();
+    $('.newBikeButton').show();
+    $('.editBikeButton').show();
+    $('.deleteBikeButton').show();
   }
 
-  function showLoginButton() {
+  function showLoggedOutButtons() {
     $('#signinButton').show();
     $('#userInfo').hide();
+    $('.newBikeButton').hide();
+    $('.editBikeButton').hide();
+    $('.deleteBikeButton').hide();
   }
-  
+
   if (loggedIn=='null'||loggedIn=='') {
-    showLoginButton();
+    showLoggedOutButtons();
   }
   else {
-    hideLoginButton();
+    showLoggedInButtons();
   }
 
 

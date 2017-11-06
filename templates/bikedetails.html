@@ -7,8 +7,8 @@
       <h4 class="card-title"><a href="{{url_for('showBrandBikes', brand_name=bike.brand)}}">{{bike.brand}}</a></h4>
       <h6><a href="{{url_for('showCategoryBikes', category_name=bike.category.name)}}">{{bike.category.name}}</a></h6>
       <p class="lead">{{bike.description}}</p>
-      <a href="{{url_for('editBike', bike_name=bike.name, brand_name=bike.brand)}}" role="button" title="edit"><i class="fa fa-pencil-square-o"></i></a>
-      <a href="{{url_for('deleteBike', bike_name=bike.name, brand_name=bike.brand)}}" role="button" title="delete"><i class="fa fa-trash"></i></a>
+      <a class="editBikeButton" href="{{url_for('editBike', bike_name=bike.name, brand_name=bike.brand)}}" role="button" title="edit"><i class="fa fa-pencil-square-o"></i></a>
+      <a class="deleteBikeButton" href="{{url_for('deleteBike', bike_name=bike.name, brand_name=bike.brand)}}" role="button" title="delete"><i class="fa fa-trash"></i></a>
     </div>
   </div>
 {% endblock %}
