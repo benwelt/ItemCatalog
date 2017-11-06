@@ -23,5 +23,10 @@ $(document).ready(function() {
     showLoggedInButtons();
   }
 
+  window.setTimeout(function() {
+    $('.flask-alert').delay(2000).fadeOut(800, function() {
+      $(this).alert('close');
+    });
+  })
 
 });

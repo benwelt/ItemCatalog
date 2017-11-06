@@ -6,7 +6,6 @@ from flask import session as login_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy import create_engine
-from flask_httpauth import HTTPBasicAuth
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 import json
 import requests
@@ -15,7 +14,6 @@ import random
 import string
 
 
-auth = HTTPBasicAuth()
 engine = create_engine('sqlite:///bikecatalog.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
@@ -113,11 +111,12 @@ def glogin():
         user_id = createUser(login_session)
     login_session['user_id'] = user_id
 
+    flash('You have been logged in as ' + login_session['username'])
     return jsonify(name=login_session['username'])
 
 
-@app.route('/glogout')
-def glogout():
+@app.route('/logout')
+def logout():
     access_token = login_session.get('access_token')
     if access_token is None:
         response = make_response(json.dumps('Current user not connected.'), 401)
@@ -135,25 +134,13 @@ def glogout():
         del login_session['provider']
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
-        return response
+        flash('You have been logged out')
+        return redirect(url_for('showAllBikes'))
     else:
         response = make_response(
                     json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
-        return response
-
-
-@app.route('/logout')
-def logout():
-    if 'provider' in login_session:
-        if login_session['provider'] == 'google':
-            glogout()
-        if login_session['provider'] == 'facebook':
-            fblogout()
-        flash("You have been logged out.")
-        return redirect(url_for('showAllBikes'))
-    else:
-        flash("You were not logged in")
+        flash('Logout failed')
         return redirect(url_for('showAllBikes'))
 
 
@@ -201,30 +188,40 @@ def showBikeDetails(bike_name):
 @app.route('/category/new', methods=['GET', 'POST'])
 def addNewCategory():
     categories = session.query(Category).all()
-    if request.method == 'POST':
-        newCategory = Category(name=request.form['name'])
-        session.add(newCategory)
-        session.commit()
-        return redirect(url_for('showAllBikes'))
+    if 'provider' in login_session and login_session['provider'] != 'null':
+        if request.method == 'POST':
+            newCategory = Category(name=request.form['name'])
+            session.add(newCategory)
+            session.commit()
+            flash('New category successfuly added')
+            return redirect(url_for('showAllBikes'))
+        else:
+            return render_template('newcategory.html', categories=categories, login_session=login_session)
     else:
-        return render_template('newcategory.html', categories=categories, login_session=login_session)
+        flash('Please login to add a new category')
+        return redirect(url_for('showAllBikes'))
 
 
 # Add a new item
 @app.route('/bike/new', methods=['GET', 'POST'])
 def addNewBike():
     categories = session.query(Category).all()
-    if request.method == 'POST':
-        newBike = Bike(name=request.form['name'],
-                       brand=request.form['brand'],
-                       category_id=request.form['category'],
-                       imageUrl=request.form['bikeImageUrl'],
-                       description=request.form['description'])
-        session.add(newBike)
-        session.commit()
-        return redirect(url_for('showAllBikes'))
+    if 'provider' in login_session and login_session['provider'] != 'null':
+        if request.method == 'POST':
+            newBike = Bike(name=request.form['name'],
+                           brand=request.form['brand'],
+                           category_id=request.form['category'],
+                           imageUrl=request.form['bikeImageUrl'],
+                           description=request.form['description'])
+            session.add(newBike)
+            session.commit()
+            flash('New bike successfully added')
+            return redirect(url_for('showAllBikes'))
+        else:
+            return render_template('newbike.html', categories=categories, login_session=login_session)
     else:
-        return render_template('newbike.html', categories=categories, login_session=login_session)
+        flash('Please login to add a new bike')
+        return redirect(url_for('showAllBikes'))
 
 
 # Edit an existing item
@@ -233,18 +230,24 @@ def addNewBike():
 def editBike(brand_name, bike_name):
     categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
-    if request.method == 'POST':
-        bike.name = request.form['name']
-        bike.brand = request.form['brand']
-        bike.category_id = request.form['category']
-        bike.imageUrl = request.form['bikeImageUrl']
-        bike.description = request.form['description']
-        session.add(bike)
-        session.commit()
-        return redirect(url_for('showAllBikes'))
+    if 'provider' in login_session and login_session['provider'] != 'null':
+        if request.method == 'POST':
+            bike.name = request.form['name']
+            bike.brand = request.form['brand']
+            bike.category_id = request.form['category']
+            bike.imageUrl = request.form['bikeImageUrl']
+            bike.description = request.form['description']
+            session.add(bike)
+            session.commit()
+            flash('Bike successfully edited')
+            return redirect(url_for('showAllBikes'))
+        else:
+            return render_template('editbike.html', brand=brand_name,
+                                   bike=bike, categories=categories,
+                                   login_session=login_session)
     else:
-        return render_template('editbike.html', brand=brand_name,
-                               bike=bike, categories=categories, login_session=login_session)
+        flash('Please login to edit a bike')
+        return redirect(url_for('showAllBikes'))
 
 
 # Delete an existing bike
@@ -253,13 +256,21 @@ def editBike(brand_name, bike_name):
 def deleteBike(brand_name, bike_name):
     categories = session.query(Category).all()
     bike = session.query(Bike).filter_by(name=bike_name).one()
-    if request.method == 'POST':
-        session.delete(bike)
-        session.commit()
-        return redirect(url_for('showAllBikes'))
+    if 'provider' in login_session and login_session['provider'] != 'null':
+        if request.method == 'POST':
+            session.delete(bike)
+            session.commit()
+            flash('Bike successfully deleted')
+            return redirect(url_for('showAllBikes'))
+        else:
+            return render_template('deletebike.html',
+                                   bike=bike,
+                                   brand=brand_name,
+                                   categories=categories,
+                                   login_session=login_session)
     else:
-        return render_template('deletebike.html', bike=bike, brand=brand_name, categories=categories, login_session=login_session)
-
+        flash('Please login to delete a bike')
+        return redirect(url_for('showAllBikes'))
 
 # Custom 404 page
 @app.errorhandler(404)
